@@ -1,69 +1,36 @@
-from re import S
 from typing import Annotated
-from fastapi import APIRouter, Body, Query
+from fastapi import APIRouter, Body, Depends, Query
 
 from public_service.schemas import (
-    Listing,
     ListingCreate,
+    ListingListRequest,
+    ListingListResponse,
     ListingCreateResponse,
-    QueryParameter,
     UserCreate,
     UserCreateResponse,
 )
+from public_service.service import PublicService
 
 
 router = APIRouter(prefix="/public-listing")
 
 
-@router.get("/listings", tags=["Public API Listing"])
-def list(q: Annotated[QueryParameter, Query()]):
-    return Listing.model_validate(
-        {
-            "result": True,
-            "listings": [
-                {
-                    "id": 1,
-                    "listing_type": "rent",
-                    "price": 6000,
-                    "created_at": 1475820997000000,
-                    "updated_at": 1475820997000000,
-                    "user": {
-                        "id": 1,
-                        "name": "Suresh Subramaniam",
-                        "created_at": 1475820997000000,
-                        "updated_at": 1475820997000000,
-                    },
-                }
-            ],
-        }
-    )
+@router.get(
+    "/listings", tags=["Public API Listing"], response_model=ListingListResponse
+)
+def list(q: Annotated[ListingListRequest, Query()], service: PublicService = Depends()):
+    return service.list_listing(q)
 
 
-@router.post("/users", tags=["Public API User"])
-def add_user(user: Annotated[UserCreate, Body(embed=True)]):
-    return UserCreateResponse.model_validate(
-        {
-            "user": {
-                "id": 1,
-                "name": "Lorel Ipsum",
-                "created_at": 1475820997000000,
-                "updated_at": 1475820997000000,
-            }
-        }
-    )
+@router.post("/users", tags=["Public API User"], response_model=UserCreateResponse)
+def add_user(user: Annotated[UserCreate, Body()], service: PublicService = Depends()):
+    return service.create_user(user)
 
 
-@router.post("/listings", tags=["Public API Listing"])
-def add_listing(listing: Annotated[ListingCreate, Body(embed=True)]):
-    return ListingCreateResponse.model_validate(
-        {
-            "listing": {
-                "id": 143,
-                "user_id": 1,
-                "listing_type": "rent",
-                "price": 6000,
-                "created_at": 1475820997000000,
-                "updated_at": 1475820997000000,
-            }
-        }
-    )
+@router.post(
+    "/listings", tags=["Public API Listing"], response_model=ListingCreateResponse
+)
+def add_listing(
+    payload: Annotated[ListingCreate, Body()], service: PublicService = Depends()
+):
+    return service.create_listing(payload)

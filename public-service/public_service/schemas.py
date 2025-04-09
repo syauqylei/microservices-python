@@ -1,4 +1,5 @@
 from typing import List, Optional
+from common.types.schemas import ListingType
 from pydantic import BaseModel, Field
 
 
@@ -11,7 +12,7 @@ class Pagination(BaseModel):
     page_size: int = Field(10, gt=0)
 
 
-class QueryParameter(Pagination):
+class ListingListRequest(Pagination):
     user_id: Optional[int] = None
 
 
@@ -24,14 +25,14 @@ class UserSchema(BaseModel):
 
 class ListingSchema(BaseModel):
     id: int
-    listing_type: str
+    listing_type: ListingType
     price: int
     created_at: int
     updated_at: int
-    user: UserSchema
+    user_id: int
 
 
-class Listing(BaseResponse):
+class ListingListResponse(BaseResponse):
     listings: List[ListingSchema]
 
 

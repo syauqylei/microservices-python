@@ -1,10 +1,7 @@
-from typing import Annotated, List, cast
-from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy.engine import result
+from typing import Annotated
+from fastapi import APIRouter, Depends, Form, HTTPException, Query
 
 from user_service import create_logger
-from user_service.database import SessionDep, get_session
-from user_service.model import User
 from user_service.schemas import (
     Pagination,
     UserCreate,
@@ -32,10 +29,10 @@ def list(
         Log.error(e)
 
     if not ret:
-        HTTPException(status_code=500, detail="Internal Server Error")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
 
     Log.info(f"result - {ret}")
-    return UserListRes(result=bool(ret), users=cast(List[User], ret))
+    return UserListRes(result=bool(ret), users=ret)
 
 
 @route.get("/{user_id}", tags=["Users"], response_model=UserRetrieveRes)
@@ -48,13 +45,13 @@ def retrieve(user_id: int, service: UserService = Depends()) -> UserRetrieveRes:
         Log.error(e)
 
     if not ret:
-        HTTPException(status_code=500, detail="Internal Server Error")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
 
-    return UserRetrieveRes(result=bool(ret), user=cast(User, ret))
+    return UserRetrieveRes(result=bool(ret), user=ret)
 
 
 @route.post("", tags=["Users"], response_model=UserCreateRes)
-def add(q: Annotated[UserCreate, Query()], service: UserService = Depends()):
+def add(q: Annotated[UserCreate, Form()], service: UserService = Depends()):
     Log.info("add user", q)
 
     user = None
@@ -68,4 +65,4 @@ def add(q: Annotated[UserCreate, Query()], service: UserService = Depends()):
         raise HTTPException(
             status_code=400, detail=f"Error: creating user: {q.model_dump_json()} "
         )
-    return UserCreateRes(result=bool(user), user=cast(User, user))
+    return UserCreateRes(result=bool(user), user=user)

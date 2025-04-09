@@ -26,6 +26,7 @@ class QueryHandler[TModel]:
 
     def queryPage(self, pagination: Pagination):
         self._paginate(page_num=pagination.page_num, page_size=pagination.page_size)
+        self._stmt = self._stmt.order_by(self._model.created_at.desc())
         return self._stmt
 
     def get_by_id(self, model_id: int):

@@ -7,10 +7,14 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.12"
-sqlmodel = "^0.0.24"
 fastapi = "^0.115.12"
 uvicorn = "^0.34.0"
-
+sqlmodel = "^0.0.24"
+common = { path = "../common", develop = true }
+requests = "^2.32.3"
+pydantic-settings = "^2.8.1"
+sqlalchemy = "^2.0.40"
+python-multipart = "^0.0.20"
 
 [build-system]
 requires = ["poetry-core"]

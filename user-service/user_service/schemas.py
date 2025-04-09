@@ -1,7 +1,7 @@
 from typing import List
 from pydantic import BaseModel, Field
 
-from user_service.model import User
+from user_service.model import Base, User
 
 
 class Pagination(BaseModel):
